@@ -1,5 +1,7 @@
 package net.howson.chineseflashcards.spacedrep;
 
+import net.howson.chineseflashcards.storage.CardHistoryStore;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,16 +15,22 @@ public class LearningSetCardSelector implements CardSelector {
     private final int learningSetSize;
     private final List<FlashCard> allCards;
     private final List<FlashCard> otherCards;
+    private final CardHistoryStore store;
+    private final String deckName;
 
     private List<FlashCard> learningSet;
     private int minTimesCorrectInSet;
     private int learnThreshold;
     private FlashCard lastCard;
 
-    public LearningSetCardSelector(int learningSetSize, int learnThreshold, List<FlashCard> allCards) {
+    public LearningSetCardSelector(int learningSetSize, int learnThreshold, String deckName, List<FlashCard> allCards, CardHistoryStore store) {
 
+        
+        this.deckName = deckName;
         this.learnThreshold = learnThreshold;
-
+        this.store = store;
+        
+        
         int learningSetSize1;
         learningSetSize1 = learningSetSize;
         this.allCards = allCards;
@@ -75,6 +83,8 @@ public class LearningSetCardSelector implements CardSelector {
     public void recordCorrect(FlashCard currentCard) {
         currentCard.numTimesCorrect++;
         currentCard.promotionCounter++;
+        store.updateCardCounts(this.deckName, currentCard);
+
         if (currentCard.promotionCounter == learnThreshold) {
             currentCard.promotionCounter = 0;
             learningSet.remove(currentCard);
@@ -88,5 +98,6 @@ public class LearningSetCardSelector implements CardSelector {
     public void recordIncorrect(FlashCard currentCard) {
         currentCard.numTimesIncorrect++;
         currentCard.promotionCounter = 0;
+        store.updateCardCounts(this.deckName, currentCard);
     }
 }

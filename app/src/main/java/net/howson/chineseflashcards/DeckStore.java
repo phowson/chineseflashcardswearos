@@ -7,6 +7,7 @@ import java.util.List;
 public final class DeckStore {
 
     private static final DeckStore instance = new DeckStore();
+    private String deckName;
 
 
     public static DeckStore getInstance() {
@@ -17,10 +18,14 @@ public final class DeckStore {
     private List<FlashCard> deck;
 
 
-    public void setDeck(List<FlashCard> deck) {
+    public void setDeck(List<FlashCard> deck, String deckName) {
         this.deck = deck;
+        this.deckName = deckName;
     }
 
+    public String getDeckName() {
+        return deckName;
+    }
 
     public List<FlashCard> getDeck() {
         return deck;

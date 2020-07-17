@@ -19,10 +19,12 @@ import net.howson.chineseflashcards.spacedrep.CardSelector;
 import net.howson.chineseflashcards.spacedrep.FlashCard;
 import net.howson.chineseflashcards.spacedrep.LearningSetCardSelector;
 import net.howson.chineseflashcards.spacedrep.SimpleRandomizedCardSelector;
+import net.howson.chineseflashcards.storage.CardHistoryStore;
 
 public class FlashcardActivity extends WearableActivity {
 
     private TextView counterTextView;
+    private CardHistoryStore store;
 
     private enum GuiState {
         FRONT_SHOWN,
@@ -43,12 +45,15 @@ public class FlashcardActivity extends WearableActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_flashcards);
 
+
+        this.store = new CardHistoryStore(getApplicationContext());
+
         flashcardTextView = (TextView) findViewById(R.id.flashCardTextView);
         topTooltipTextView = (TextView) findViewById(R.id.topToolTipTextView);
         bottomTooltipTextView = (TextView) findViewById(R.id.bottomToolTipTextView);
         counterTextView = (TextView) findViewById(R.id.counterTextView);
         //cardSelector = new SimpleRandomizedCardSelector(DeckStore.getInstance().getDeck());
-        cardSelector = new LearningSetCardSelector(10, 2, DeckStore.getInstance().getDeck() );
+        cardSelector = new LearningSetCardSelector(10, 2, DeckStore.getInstance().getDeckName(), DeckStore.getInstance().getDeck(), store );
 
 
         topTooltipTextView.setOnClickListener(new View.OnClickListener() {
@@ -69,6 +74,18 @@ public class FlashcardActivity extends WearableActivity {
         setAmbientEnabled();
 
         selectNewCardShowFront();
+    }
+
+    @Override
+    protected void onStop() {
+
+        Log.i(FlashcardActivity.class.getName(), "Stopping");
+        if (this.store!=null) {
+            this.store.close();
+        }
+
+
+        super.onStop();
     }
 
     private void selectNewCardShowFront() {

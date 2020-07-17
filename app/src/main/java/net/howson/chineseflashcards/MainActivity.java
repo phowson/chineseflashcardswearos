@@ -5,8 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.wearable.activity.WearableActivity;
-import android.util.Log;
-import android.view.KeyEvent;
 
 import androidx.wear.widget.WearableLinearLayoutManager;
 import androidx.wear.widget.WearableRecyclerView;
@@ -17,10 +15,9 @@ import net.howson.chineseflashcards.file.ResourceType;
 import net.howson.chineseflashcards.mainmenu.MainMenuItem;
 import net.howson.chineseflashcards.mainmenu.MenuItemsAdapter;
 import net.howson.chineseflashcards.spacedrep.FlashCard;
+import net.howson.chineseflashcards.storage.CardHistoryStore;
 import net.howson.chineseflashcards.tools.MagnifyingScrollingLayoutCallback;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +31,9 @@ public class MainActivity extends WearableActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+
 
         menuItemsRecyclerView = (WearableRecyclerView) findViewById(R.id.menuItems);
         MagnifyingScrollingLayoutCallback customScrollingLayoutCallback =
@@ -79,9 +79,18 @@ public class MainActivity extends WearableActivity {
         public void onClick(MainMenuItem item) {
 
 
+
             Intent intent = new Intent(MainActivity.this, FlashcardActivity.class);
             List<FlashCard> deck = new DeckLoader().loadCards(getApplicationContext(), item.fileLocation, item.resourceType, item.fileType);
-            DeckStore.getInstance().setDeck(deck);
+
+            try (        CardHistoryStore db = new CardHistoryStore(getApplicationContext());) {
+                db.loadCounts(item.name, deck);
+            }
+
+
+            DeckStore.getInstance().setDeck(deck, item.name);
+
+
             startActivity(intent);
         }
     }
