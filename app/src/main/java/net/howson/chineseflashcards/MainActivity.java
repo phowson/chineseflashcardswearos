@@ -3,8 +3,12 @@ package net.howson.chineseflashcards;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.support.wearable.activity.WearableActivity;
+import android.util.Log;
 
 import androidx.wear.widget.WearableLinearLayoutManager;
 import androidx.wear.widget.WearableRecyclerView;
@@ -16,6 +20,9 @@ import net.howson.chineseflashcards.spacedrep.FlashCard;
 import net.howson.chineseflashcards.storage.CardHistoryStore;
 import net.howson.chineseflashcards.tools.MagnifyingScrollingLayoutCallback;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,14 +57,14 @@ public class MainActivity extends WearableActivity {
 
         Object menuInInstanceState = null;
         Intent intent = getIntent();
-        if (intent!=null) {
+        if (intent != null) {
             menuInInstanceState = intent.getSerializableExtra("menu");
         }
 
 
         if (menuInInstanceState == null) {
 
-            new DeckDirectory().populateMainMenuItemsFromDecks(items);
+            new DeckDirectory().populateMainMenuItemsWithDecks(getApplicationContext(), items);
             items.add(new MainMenuItem(RESET_LEARN_NAME, "ic_baseline_clear_24", null, null, null));
             items.add(new MainMenuItem(ABOUT_NAME, "ic_baseline_info_24", null, null, null));
         } else {
@@ -106,6 +113,8 @@ public class MainActivity extends WearableActivity {
         }
 
         private void about() {
+
+
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setMessage("Chinese Flashcards\nGPL License\nPhilip Howson 2020")
                     .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -113,12 +122,6 @@ public class MainActivity extends WearableActivity {
                             // User cancelled the dialog
                         }
                     });
-//                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int id) {
-//                            // User cancelled the dialog
-//                        }
-//                    });
-            // Create the AlertDialog object and return it
             builder.create().show();
         }
 

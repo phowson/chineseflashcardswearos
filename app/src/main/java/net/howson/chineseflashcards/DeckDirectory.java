@@ -1,14 +1,22 @@
 package net.howson.chineseflashcards;
 
+import android.content.Context;
+import android.os.Environment;
+import android.util.Log;
+
 import net.howson.chineseflashcards.file.FileType;
 import net.howson.chineseflashcards.file.ResourceType;
 import net.howson.chineseflashcards.mainmenu.MainMenuItem;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DeckDirectory {
-    public void populateMainMenuItemsFromDecks(List<MainMenuItem> items) {
+    public void populateMainMenuItemsWithDecks(Context context, List<MainMenuItem> items) {
+
+
+
 
 
         for (int i = 1; i < 6; ++i) {
@@ -41,6 +49,41 @@ public class DeckDirectory {
         items.add(new MainMenuItem("HSK6",
                 "ic_baseline_folder_24",
                 subMenu));
+
+
+
+        List<MainMenuItem> userSubMenu = new ArrayList<>();
+
+        File flashcardDir = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+        Log.i(MainActivity.class.getName(), flashcardDir.getAbsolutePath());
+
+
+        if (flashcardDir.exists() && flashcardDir.isDirectory()) {
+
+
+            File[] files = flashcardDir.listFiles();
+            if (files!=null) {
+                for (File f : files) {
+                    final String name = f.getName();
+                    if (f.isFile() && name.endsWith(".csv")) {
+                        userSubMenu.add(new MainMenuItem(name.substring(0, name.indexOf('.')),
+                                "deck_icon",
+                                f.getAbsolutePath(),
+                                ResourceType.Filesystem,
+                                FileType.CSV
+                        ));
+                    }
+
+                }
+            }
+
+            if (!userSubMenu.isEmpty()) {
+                items.add(new MainMenuItem("Your decks",
+                        "ic_baseline_folder_24",
+                        userSubMenu));
+            }
+
+        }
 
 
     }

@@ -72,9 +72,11 @@ public class LearningSetCardSelector implements CardSelector {
     @Override
     public FlashCard getNextCard() {
         FlashCard x;
+
+
         do {
             x = learningSet.get(r.nextInt(learningSet.size()));
-        } while (lastCard ==x);
+        } while (lastCard ==x && learningSetSize>1);
         lastCard = x;
         return lastCard;
     }
