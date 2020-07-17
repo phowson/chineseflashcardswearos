@@ -97,8 +97,9 @@ public class DeckLoader {
     private FlashCard parseCsvLine(String line) {
         int i = line.indexOf(',');
         String front = line.substring(0,i);
-        String back = line.substring(i+1);
-
+        String s = line.substring(i+1);
+        int j = s.indexOf(',');
+        String back = s.substring(0,j) +"\n" + s.substring(j+1);
         return new FlashCard(front, back);
 
     }
