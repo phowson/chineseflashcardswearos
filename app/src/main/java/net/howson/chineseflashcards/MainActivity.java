@@ -98,6 +98,25 @@ public class MainActivity extends WearableActivity {
     private class ResetLearnHandler implements MainMenuClickHandler {
         @Override
         public void onClick(MainMenuItem item) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setMessage("This will reset all scores for all cards in every deck.\nAre you sure?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                            try (        CardHistoryStore db = new CardHistoryStore(getApplicationContext());) {
+                                db.reset();
+                            }
+
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User cancelled the dialog
+                        }
+                    });
+            // Create the AlertDialog object and return it
+            builder.create().show();
+
 
         }
     }

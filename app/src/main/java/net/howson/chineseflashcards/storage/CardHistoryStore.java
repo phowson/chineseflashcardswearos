@@ -39,7 +39,7 @@ public class CardHistoryStore extends SQLiteOpenHelper {
                 + KEY_DECK + " TEXT ," + KEY_FRONT + " TEXT,"
                 + KEY_CORRECT_COUNT + " INTEGER,"
                 + KEY_INCORRECT_COUNT + " INTEGER,"
-                + " PRIMARY KEY (" + KEY_DECK +", " + KEY_FRONT +") )";
+                + " PRIMARY KEY (" + KEY_DECK + ", " + KEY_FRONT + ") )";
         db.execSQL(CREAT_TABLE);
         if (BuildConfig.DEBUG) {
             Log.i(CardHistoryStore.class.getName(), "database created OK");
@@ -65,7 +65,7 @@ public class CardHistoryStore extends SQLiteOpenHelper {
 
         Map<String, FlashCard> cardIndex = new HashMap<>();
 
-        for (Iterator<FlashCard>  it = cards.iterator(); it.hasNext(); ) {
+        for (Iterator<FlashCard> it = cards.iterator(); it.hasNext(); ) {
             FlashCard card = it.next();
             cardIndex.put(card.front, card);
         }
@@ -75,11 +75,11 @@ public class CardHistoryStore extends SQLiteOpenHelper {
 //        private static final String KEY_FRONT = "front";
 //        private static final String KEY_CORRECT_COUNT = "correctCount";
 //        private static final String KEY_INCORRECT_COUNT = "incorrectCount";
-        String selectQuery = "SELECT  " +  KEY_FRONT +", " + KEY_CORRECT_COUNT +", " + KEY_INCORRECT_COUNT + " FROM " + TABLE +" WHERE "+KEY_DECK + " =?";
+        String selectQuery = "SELECT  " + KEY_FRONT + ", " + KEY_CORRECT_COUNT + ", " + KEY_INCORRECT_COUNT + " FROM " + TABLE + " WHERE " + KEY_DECK + " =?";
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor =db.query(TABLE, new String[] { KEY_FRONT,
-                        KEY_CORRECT_COUNT, KEY_INCORRECT_COUNT }, KEY_DECK + "=?",
-                new String[] { deckName }, null, null, null, null);
+        Cursor cursor = db.query(TABLE, new String[]{KEY_FRONT,
+                        KEY_CORRECT_COUNT, KEY_INCORRECT_COUNT}, KEY_DECK + "=?",
+                new String[]{deckName}, null, null, null, null);
 
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
@@ -87,7 +87,7 @@ public class CardHistoryStore extends SQLiteOpenHelper {
                 String front = cursor.getString(0);
 
                 FlashCard card = cardIndex.get(front);
-                if (card!=null) {
+                if (card != null) {
 
                     if (BuildConfig.DEBUG) {
                         Log.i(CardHistoryStore.class.getName(), "Updating card from DB counters " + front);
@@ -157,6 +157,13 @@ public class CardHistoryStore extends SQLiteOpenHelper {
 
         // return contact
 
+    }
+
+    public void reset() {
+        try (SQLiteDatabase db = this.getWritableDatabase();) {
+            db.delete(TABLE, "",
+                    new String[]{});
+        }
     }
 
 //    // code to add the new contact
