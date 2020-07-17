@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.wear.widget.WearableRecyclerView;
 
+import net.howson.chineseflashcards.MainMenuClickHandler;
 import net.howson.chineseflashcards.R;
 
 import java.util.List;
@@ -19,12 +20,14 @@ import java.util.List;
 public class MenuItemsAdapter extends
         WearableRecyclerView.Adapter<MainMenuViewHolder> {
 
+    private final MainMenuClickHandler handler;
     private List<MainMenuItem> mainMenuItems;
     private Context context;
 
     // Pass in the contact array into the constructor
-    public MenuItemsAdapter(List<MainMenuItem> mainMenuItems) {
+    public MenuItemsAdapter(List<MainMenuItem> mainMenuItems,  MainMenuClickHandler handler) {
         this.mainMenuItems = mainMenuItems;
+        this.handler = handler;
     }
 
 
@@ -63,8 +66,8 @@ public class MenuItemsAdapter extends
             @Override
             public void onClick(View v) {
                 Log.i(MenuItemsAdapter.class.getName(), "Click detected for " + mainMenuItem.name);
-                if (mainMenuItem.handler!=null) {
-                    mainMenuItem.handler.onClick(mainMenuItem);
+                if (handler!=null) {
+                    handler.onClick(mainMenuItem);
                 }
 
             }
@@ -80,8 +83,8 @@ public class MenuItemsAdapter extends
             @Override
             public void onClick(View v) {
                 Log.i(MenuItemsAdapter.class.getName(), "Click detected for " + mainMenuItem.name);
-                if (mainMenuItem.handler!=null) {
-                    mainMenuItem.handler.onClick(mainMenuItem);
+                if (handler!=null) {
+                    handler.onClick(mainMenuItem);
                 }
             }
         });

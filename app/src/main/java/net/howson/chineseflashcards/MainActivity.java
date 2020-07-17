@@ -10,20 +10,22 @@ import androidx.wear.widget.WearableLinearLayoutManager;
 import androidx.wear.widget.WearableRecyclerView;
 
 import net.howson.chineseflashcards.file.DeckLoader;
-import net.howson.chineseflashcards.file.FileType;
-import net.howson.chineseflashcards.file.ResourceType;
 import net.howson.chineseflashcards.mainmenu.MainMenuItem;
 import net.howson.chineseflashcards.mainmenu.MenuItemsAdapter;
 import net.howson.chineseflashcards.spacedrep.FlashCard;
 import net.howson.chineseflashcards.storage.CardHistoryStore;
 import net.howson.chineseflashcards.tools.MagnifyingScrollingLayoutCallback;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class MainActivity extends WearableActivity {
 
 
+    private static final String RESET_LEARN_NAME = "Reset Learn";
+    private static final String ABOUT_NAME = "About";
     private WearableRecyclerView menuItemsRecyclerView;
 
 
@@ -31,8 +33,6 @@ public class MainActivity extends WearableActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
 
 
         menuItemsRecyclerView = (WearableRecyclerView) findViewById(R.id.menuItems);
@@ -48,21 +48,23 @@ public class MainActivity extends WearableActivity {
 
         List<MainMenuItem> items = new ArrayList<>();
 
-
-        for (int i = 1; i < 7; ++i) {
-            items.add(new MainMenuItem("HSK" + i,
-                    "deck_icon",
-                    "hsk" + i,
-                    ResourceType.Package,
-                    FileType.TSV,
-                    new TransitionToFlashcardsHandlerMainMenu()));
+        Object menuInInstanceState = null;
+        Intent intent = getIntent();
+        if (intent!=null) {
+            menuInInstanceState = intent.getSerializableExtra("menu");
         }
 
 
-        items.add(new MainMenuItem("Reset Learn", "ic_baseline_clear_24", null, null, null, new ResetLearnHandler()));
-        items.add(new MainMenuItem("About", "ic_baseline_info_24", null, null, null, new AboutHandler()));
+        if (menuInInstanceState == null) {
 
-        MenuItemsAdapter adapter = new MenuItemsAdapter(items);
+            new DeckDirectory().populateMainMenuItemsFromDecks(items);
+            items.add(new MainMenuItem(RESET_LEARN_NAME, "ic_baseline_clear_24", null, null, null));
+            items.add(new MainMenuItem(ABOUT_NAME, "ic_baseline_info_24", null, null, null));
+        } else {
+            items.addAll((Collection<? extends MainMenuItem>) menuInInstanceState);
+        }
+
+        MenuItemsAdapter adapter = new MenuItemsAdapter(items, new TransitionToFlashcardsHandlerMainMenu());
         // Attach the adapter to the recyclerview to populate items
         menuItemsRecyclerView.setAdapter(adapter);
 
@@ -79,51 +81,31 @@ public class MainActivity extends WearableActivity {
         public void onClick(MainMenuItem item) {
 
 
+            if (item.name.equals(RESET_LEARN_NAME)) {
+                resetLearn();
+            } else if (item.name.equals(ABOUT_NAME)) {
+                about();
+            } else if (item.subMenu == null) {
+                openFlashcards(item);
+            } else {
+                Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                intent.putExtra("menu", (Serializable) item.subMenu);
+                startActivity(intent);
+            }
+        }
 
+        private void openFlashcards(MainMenuItem item) {
             Intent intent = new Intent(MainActivity.this, FlashcardActivity.class);
             List<FlashCard> deck = new DeckLoader().loadCards(getApplicationContext(), item.fileLocation, item.resourceType, item.fileType);
 
-            try (        CardHistoryStore db = new CardHistoryStore(getApplicationContext());) {
+            try (CardHistoryStore db = new CardHistoryStore(getApplicationContext());) {
                 db.loadCounts(item.name, deck);
             }
-
-
             DeckStore.getInstance().setDeck(deck, item.name);
-
-
             startActivity(intent);
         }
-    }
 
-    private class ResetLearnHandler implements MainMenuClickHandler {
-        @Override
-        public void onClick(MainMenuItem item) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setMessage("This will reset all scores for all cards in every deck.\nAre you sure?")
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-
-                            try (        CardHistoryStore db = new CardHistoryStore(getApplicationContext());) {
-                                db.reset();
-                            }
-
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // User cancelled the dialog
-                        }
-                    });
-            // Create the AlertDialog object and return it
-            builder.create().show();
-
-
-        }
-    }
-
-    private class AboutHandler implements MainMenuClickHandler {
-        @Override
-        public void onClick(MainMenuItem item) {
+        private void about() {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setMessage("Chinese Flashcards\nGPL License\nPhilip Howson 2020")
                     .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -139,6 +121,29 @@ public class MainActivity extends WearableActivity {
             // Create the AlertDialog object and return it
             builder.create().show();
         }
+
+        private void resetLearn() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setMessage("This will reset all scores for all cards in every deck.\nAre you sure?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                            try (CardHistoryStore db = new CardHistoryStore(getApplicationContext());) {
+                                db.reset();
+                            }
+
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User cancelled the dialog
+                        }
+                    });
+            // Create the AlertDialog object and return it
+            builder.create().show();
+        }
     }
+
+
 }
 
