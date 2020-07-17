@@ -2,8 +2,14 @@ package net.howson.chineseflashcards;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.wearable.activity.WearableActivity;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -11,9 +17,12 @@ import android.widget.TextView;
 
 import net.howson.chineseflashcards.spacedrep.CardSelector;
 import net.howson.chineseflashcards.spacedrep.FlashCard;
+import net.howson.chineseflashcards.spacedrep.LearningSetCardSelector;
 import net.howson.chineseflashcards.spacedrep.SimpleRandomizedCardSelector;
 
 public class FlashcardActivity extends WearableActivity {
+
+    private TextView counterTextView;
 
     private enum GuiState {
         FRONT_SHOWN,
@@ -37,7 +46,10 @@ public class FlashcardActivity extends WearableActivity {
         flashcardTextView = (TextView) findViewById(R.id.flashCardTextView);
         topTooltipTextView = (TextView) findViewById(R.id.topToolTipTextView);
         bottomTooltipTextView = (TextView) findViewById(R.id.bottomToolTipTextView);
-        cardSelector = new SimpleRandomizedCardSelector(DeckStore.getInstance().getDeck());
+        counterTextView = (TextView) findViewById(R.id.counterTextView);
+        //cardSelector = new SimpleRandomizedCardSelector(DeckStore.getInstance().getDeck());
+        cardSelector = new LearningSetCardSelector(10, 2, DeckStore.getInstance().getDeck() );
+
 
         topTooltipTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,10 +74,27 @@ public class FlashcardActivity extends WearableActivity {
     private void selectNewCardShowFront() {
         this.state = GuiState.FRONT_SHOWN;
         currentCard = cardSelector.getNextCard();
+
         flashcardTextView.setText(currentCard.front);
-        flashcardTextView.setTextSize(32);
+        flashcardTextView.setTextSize(38);
         topTooltipTextView.setText("Flip");
         bottomTooltipTextView.setText("Exit");
+
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+
+        SpannableString spanned1 = new SpannableString(Integer.toString(currentCard.numTimesCorrect % 100));
+        spanned1.setSpan(new ForegroundColorSpan(Color.GREEN), 0, spanned1.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        SpannableString spanned2 = new SpannableString(" / ");
+
+        SpannableString spanned3 = new SpannableString(Integer.toString(currentCard.numTimesIncorrect % 100));
+        spanned3.setSpan(new ForegroundColorSpan(Color.RED), 0, spanned3.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        builder.append(spanned1);
+        builder.append(spanned2);
+        builder.append(spanned3);
+
+        counterTextView.setText(builder);
     }
 
     private void showCardBack() {
@@ -84,7 +113,8 @@ public class FlashcardActivity extends WearableActivity {
                 finish();
                 break;
             case BACK_SHOWN:
-                cardSelector.recordCorrect(currentCard);
+                cardSelector.recordIncorrect(currentCard);
+
                 selectNewCardShowFront();
                 break;
         }
@@ -97,7 +127,7 @@ public class FlashcardActivity extends WearableActivity {
                 showCardBack();
                 break;
             case BACK_SHOWN:
-                cardSelector.recordIncorrect(currentCard);
+                cardSelector.recordCorrect(currentCard);
                 selectNewCardShowFront();
                 break;
 
@@ -110,29 +140,10 @@ public class FlashcardActivity extends WearableActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.i(FlashcardActivity.class.getName(), "Saw keyCode = " + keyCode);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Saw keyCode = " + keyCode)
-                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog
-                    }
-                });
-        // Create the AlertDialog object and return it
-        builder.create().show();
-
         if (keyCode == KeyEvent.KEYCODE_STEM_1) {
             onTopButtonPress();
         } else if (keyCode == KeyEvent.KEYCODE_STEM_2) {
             onBottomButtonPress();
-        } else if (keyCode == KeyEvent.KEYCODE_STEM_3) {
-            Log.i(FlashcardActivity.class.getName(), "Saw stem 3");
         }
         return super.onKeyDown(keyCode, event);
     }

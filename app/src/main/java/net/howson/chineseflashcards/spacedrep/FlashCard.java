@@ -8,7 +8,9 @@ public class FlashCard {
     public final String back;
 
     public int numTimesCorrect;
+    public int numTimesIncorrect;
     public long lastSeenTsMs;
+    public int promotionCounter;
 
 
     public FlashCard(String front, String back) {
@@ -19,10 +21,11 @@ public class FlashCard {
 
     @Override
     public String toString() {
-        return "{ " +
+        return "FlashCard{" +
                 "front='" + front + '\'' +
                 ", back='" + back + '\'' +
                 ", numTimesCorrect=" + numTimesCorrect +
+                ", numTimesIncorrect=" + numTimesIncorrect +
                 ", lastSeenTsMs=" + lastSeenTsMs +
                 '}';
     }

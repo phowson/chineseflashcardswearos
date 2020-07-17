@@ -49,28 +49,18 @@ public class MainActivity extends WearableActivity {
         List<MainMenuItem> items = new ArrayList<>();
 
 
-        items.add(new MainMenuItem("HSK4",
-                "deck_icon",
-                "hsk4",
-                ResourceType.Package,
-                FileType.TSV,
-                new TransitionToFlashcardsHandlerMainMenu()));
-        items.add(new MainMenuItem("HSK5",
-                "deck_icon",
-                "hsk5",
-                ResourceType.Package,
-                FileType.TSV,
-                new TransitionToFlashcardsHandlerMainMenu()));
-        items.add(new MainMenuItem("HSK6",
-                "deck_icon",
-                "hsk6",
-                ResourceType.Package,
-                FileType.TSV,
-                new TransitionToFlashcardsHandlerMainMenu()));
+        for (int i = 1; i < 7; ++i) {
+            items.add(new MainMenuItem("HSK" + i,
+                    "deck_icon",
+                    "hsk" + i,
+                    ResourceType.Package,
+                    FileType.TSV,
+                    new TransitionToFlashcardsHandlerMainMenu()));
+        }
 
 
         items.add(new MainMenuItem("Reset Learn", "ic_baseline_clear_24", null, null, null, new ResetLearnHandler()));
-        items.add(new MainMenuItem("About", "ic_baseline_info_24",null, null, null, new AboutHandler()));
+        items.add(new MainMenuItem("About", "ic_baseline_info_24", null, null, null, new AboutHandler()));
 
         MenuItemsAdapter adapter = new MenuItemsAdapter(items);
         // Attach the adapter to the recyclerview to populate items
@@ -82,29 +72,15 @@ public class MainActivity extends WearableActivity {
     }
 
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.i(MainActivity.class.getName(), "Saw keyCode = " + keyCode);
-
-        if (keyCode == KeyEvent.KEYCODE_STEM_1) {
-            Log.i(MainActivity.class.getName(), "Saw stem 1");
-        } else if (keyCode == KeyEvent.KEYCODE_STEM_2) {
-            Log.i(MainActivity.class.getName(), "Saw stem 2");
-        } else if (keyCode == KeyEvent.KEYCODE_STEM_3) {
-            Log.i(MainActivity.class.getName(), "Saw stem 3");
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
     private class TransitionToFlashcardsHandlerMainMenu implements MainMenuClickHandler {
 
 
         @Override
-        public void onClick(MainMenuItem item ) {
+        public void onClick(MainMenuItem item) {
 
 
             Intent intent = new Intent(MainActivity.this, FlashcardActivity.class);
-            List<FlashCard> deck = new DeckLoader().loadCards(getApplicationContext(), item.fileLocation, item.resourceType, item.fileType );
+            List<FlashCard> deck = new DeckLoader().loadCards(getApplicationContext(), item.fileLocation, item.resourceType, item.fileType);
             DeckStore.getInstance().setDeck(deck);
             startActivity(intent);
         }
