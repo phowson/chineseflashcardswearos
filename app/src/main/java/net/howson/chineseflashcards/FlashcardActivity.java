@@ -37,11 +37,7 @@ public class FlashcardActivity extends WearableActivity {
         flashcardTextView = (TextView) findViewById(R.id.flashCardTextView);
         topTooltipTextView = (TextView) findViewById(R.id.topToolTipTextView);
         bottomTooltipTextView = (TextView) findViewById(R.id.bottomToolTipTextView);
-
-
         cardSelector = new SimpleRandomizedCardSelector(DeckStore.getInstance().getDeck());
-
-        selectNewCardShowFront();
 
         topTooltipTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,32 +48,63 @@ public class FlashcardActivity extends WearableActivity {
 
         bottomTooltipTextView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) { 
+            public void onClick(View v) {
                 onBottomButtonPress();
             }
         });
 
         // Enables Always-on
         setAmbientEnabled();
+
+        selectNewCardShowFront();
     }
 
     private void selectNewCardShowFront() {
+        this.state = GuiState.FRONT_SHOWN;
         currentCard = cardSelector.getNextCard();
         flashcardTextView.setText(currentCard.front);
+        flashcardTextView.setTextSize(32);
         topTooltipTextView.setText("Flip");
         bottomTooltipTextView.setText("Exit");
     }
 
+    private void showCardBack() {
+        this.state = GuiState.BACK_SHOWN;
+        flashcardTextView.setTextSize(14);
+        flashcardTextView.setText(currentCard.back);
+
+        topTooltipTextView.setText("Correct");
+        bottomTooltipTextView.setText("Incorrect");
+    }
+
     private void onBottomButtonPress() {
+        Log.i(FlashcardActivity.class.getName(), "Bottom button press");
         switch (state) {
             case FRONT_SHOWN:
                 finish();
+                break;
+            case BACK_SHOWN:
+                cardSelector.recordCorrect(currentCard);
+                selectNewCardShowFront();
                 break;
         }
 
     }
 
     private void onTopButtonPress() {
+        switch (state) {
+            case FRONT_SHOWN:
+                showCardBack();
+                break;
+            case BACK_SHOWN:
+                cardSelector.recordIncorrect(currentCard);
+                selectNewCardShowFront();
+                break;
+
+
+        }
+
+
     }
 
 

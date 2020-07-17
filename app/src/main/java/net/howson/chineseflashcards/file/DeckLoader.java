@@ -110,7 +110,7 @@ public class DeckLoader {
         String[] cols = tab.split(line);
 
         String front = cols[0];
-        String back = cols[3] +" " + cols[4];
+        String back = cols[3] +"\n" + cols[4];
 
         return new FlashCard(front, back);
     }

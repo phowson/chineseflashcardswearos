@@ -17,4 +17,15 @@ public class SimpleRandomizedCardSelector implements CardSelector {
     public FlashCard getNextCard() {
         return deck.get(r.nextInt(deck.size()));
     }
+
+
+    @Override
+    public void recordCorrect(FlashCard currentCard) {
+        currentCard.numTimesCorrect++;
+    }
+
+    @Override
+    public void recordIncorrect(FlashCard currentCard) {
+
+    }
 }
