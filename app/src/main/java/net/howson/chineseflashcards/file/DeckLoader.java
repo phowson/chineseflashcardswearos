@@ -41,7 +41,7 @@ public class DeckLoader {
         int deckId = context.getResources().getIdentifier(fileLocation, "raw", context.getPackageName());
 
 
-        Log.i(MainActivity.class.getName(), "Deck ID : "+ deckId);
+        Log.i(MainActivity.class.getName(), "Deck ID : " + deckId);
 
         try (InputStream is = context.getResources().openRawResource(deckId);) {
             return doLoad(is, fileType);
@@ -55,12 +55,11 @@ public class DeckLoader {
     private List<FlashCard> loadCardsFromFilesystem(Context context, String fileLocation, FileType fileType) {
         try (FileInputStream fis = new FileInputStream(fileLocation);) {
             return doLoad(fis, fileType);
-        }catch (IOException e) {
+        } catch (IOException e) {
             Log.e(MainActivity.class.getName(), "Could not open deck, error : " + e.getMessage(), e);
         }
         return Collections.emptyList();
     }
-
 
 
     private List<FlashCard> doLoad(InputStream is, FileType fileType) throws IOException {
@@ -71,7 +70,7 @@ public class DeckLoader {
 
 
         String line;
-        while ((line = ir.readLine())!=null) {
+        while ((line = ir.readLine()) != null) {
             switch (fileType) {
                 case TSV:
                     out.add(parseTsvLine(line));
@@ -96,10 +95,15 @@ public class DeckLoader {
 
     private FlashCard parseCsvLine(String line) {
         int i = line.indexOf(',');
-        String front = line.substring(0,i);
-        String s = line.substring(i+1);
+        String front = line.substring(0, i);
+        String s = line.substring(i + 1);
         int j = s.indexOf(',');
-        String back = s.substring(0,j) +"\n" + s.substring(j+1);
+        String back;
+        if (j != -1) {
+            back = s.substring(0, j) + "\n" + s.substring(j + 1);
+        } else {
+            back = s;
+        }
         return new FlashCard(front, back);
 
     }
@@ -111,7 +115,7 @@ public class DeckLoader {
         String[] cols = tab.split(line);
 
         String front = cols[0];
-        String back = cols[3] +"\n" + cols[4];
+        String back = cols[3] + "\n" + cols[4];
 
         return new FlashCard(front, back);
     }
