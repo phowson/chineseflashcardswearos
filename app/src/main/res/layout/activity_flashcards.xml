@@ -24,7 +24,7 @@
             android:textColor="#ffffff"
 
             android:layout_height="wrap_content"
-            android:text=""
+            android:text="0 / 0"
             android:textAlignment="center" />
     </LinearLayout>
 

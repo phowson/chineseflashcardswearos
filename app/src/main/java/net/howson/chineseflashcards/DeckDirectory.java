@@ -61,21 +61,7 @@ public class DeckDirectory {
         if (flashcardDir.exists() && flashcardDir.isDirectory()) {
 
 
-            File[] files = flashcardDir.listFiles();
-            if (files!=null) {
-                for (File f : files) {
-                    final String name = f.getName();
-                    if (f.isFile() && name.endsWith(".csv")) {
-                        userSubMenu.add(new MainMenuItem(name.substring(0, name.indexOf('.')),
-                                "deck_icon",
-                                f.getAbsolutePath(),
-                                ResourceType.Filesystem,
-                                FileType.CSV
-                        ));
-                    }
-
-                }
-            }
+            populateSubMenus(flashcardDir, userSubMenu);
 
             if (!userSubMenu.isEmpty()) {
                 items.add(new MainMenuItem("Your decks",
@@ -85,6 +71,37 @@ public class DeckDirectory {
 
         }
 
+
+    }
+
+    private void populateSubMenus(File dir, List<MainMenuItem> menu) {
+        File[] files = dir.listFiles();
+        if (files!=null) {
+            for (File f : files) {
+
+                if (f.isDirectory()) {
+                    final List<MainMenuItem> subDirItems = new ArrayList<>();
+                    populateSubMenus(f, subDirItems);
+
+                    if (!subDirItems.isEmpty()) {
+                        menu.add(new MainMenuItem(f.getName(),
+                                "ic_baseline_folder_24",
+                                subDirItems
+                        ));
+                    }
+                } else if (f.isFile()) {
+                    final String name = f.getName();
+                    if (f.isFile() && name.endsWith(".csv")) {
+                        menu.add(new MainMenuItem(name.substring(0, name.indexOf('.')),
+                                "deck_icon",
+                                f.getAbsolutePath(),
+                                ResourceType.Filesystem,
+                                FileType.CSV
+                        ));
+                    }
+                }
+            }
+        }
 
     }
 }

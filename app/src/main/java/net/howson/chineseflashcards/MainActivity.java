@@ -3,12 +3,8 @@ package net.howson.chineseflashcards;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.ParcelFileDescriptor;
 import android.support.wearable.activity.WearableActivity;
-import android.util.Log;
 
 import androidx.wear.widget.WearableLinearLayoutManager;
 import androidx.wear.widget.WearableRecyclerView;
@@ -20,9 +16,6 @@ import net.howson.chineseflashcards.spacedrep.FlashCard;
 import net.howson.chineseflashcards.storage.CardHistoryStore;
 import net.howson.chineseflashcards.tools.MagnifyingScrollingLayoutCallback;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +24,7 @@ import java.util.List;
 public class MainActivity extends WearableActivity {
 
 
-    private static final String RESET_LEARN_NAME = "Reset Learn";
+    private static final String RESET_STATS_NAME = "Reset Stats";
     private static final String ABOUT_NAME = "About";
     private WearableRecyclerView menuItemsRecyclerView;
 
@@ -65,7 +58,8 @@ public class MainActivity extends WearableActivity {
         if (menuInInstanceState == null) {
 
             new DeckDirectory().populateMainMenuItemsWithDecks(getApplicationContext(), items);
-            items.add(new MainMenuItem(RESET_LEARN_NAME, "ic_baseline_clear_24", null, null, null));
+
+            items.add(new MainMenuItem(RESET_STATS_NAME, "ic_baseline_clear_24", null, null, null));
             items.add(new MainMenuItem(ABOUT_NAME, "ic_baseline_info_24", null, null, null));
         } else {
             items.addAll((Collection<? extends MainMenuItem>) menuInInstanceState);
@@ -88,7 +82,7 @@ public class MainActivity extends WearableActivity {
         public void onClick(MainMenuItem item) {
 
 
-            if (item.name.equals(RESET_LEARN_NAME)) {
+            if (item.name.equals(RESET_STATS_NAME)) {
                 resetLearn();
             } else if (item.name.equals(ABOUT_NAME)) {
                 about();
