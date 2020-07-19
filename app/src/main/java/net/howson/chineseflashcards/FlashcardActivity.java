@@ -15,11 +15,15 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
 
+import net.howson.chineseflashcards.file.DeckLoader;
+import net.howson.chineseflashcards.mainmenu.MainMenuItem;
 import net.howson.chineseflashcards.spacedrep.CardSelector;
 import net.howson.chineseflashcards.spacedrep.FlashCard;
 import net.howson.chineseflashcards.spacedrep.LearningSetCardSelector;
 import net.howson.chineseflashcards.spacedrep.SimpleRandomizedCardSelector;
 import net.howson.chineseflashcards.storage.CardHistoryStore;
+
+import java.util.List;
 
 public class FlashcardActivity extends WearableActivity {
 
@@ -46,6 +50,18 @@ public class FlashcardActivity extends WearableActivity {
         setContentView(R.layout.activity_flashcards);
 
 
+
+        final MainMenuItem item = (MainMenuItem) getIntent().getSerializableExtra("selectedItem");
+
+        List<FlashCard> deck = new DeckLoader().loadCards(getApplicationContext(), item.fileLocation, item.resourceType, item.fileType);
+
+
+
+        try (CardHistoryStore db = new CardHistoryStore(getApplicationContext());) {
+            db.loadCounts(item.name, deck);
+        }
+
+
         this.store = new CardHistoryStore(getApplicationContext());
 
         flashcardTextView = (TextView) findViewById(R.id.flashCardTextView);
@@ -53,7 +69,7 @@ public class FlashcardActivity extends WearableActivity {
         bottomTooltipTextView = (TextView) findViewById(R.id.bottomToolTipTextView);
         counterTextView = (TextView) findViewById(R.id.counterTextView);
         //cardSelector = new SimpleRandomizedCardSelector(DeckStore.getInstance().getDeck());
-        cardSelector = new LearningSetCardSelector(10, 2, DeckStore.getInstance().getDeckName(), DeckStore.getInstance().getDeck(), store );
+        cardSelector = new LearningSetCardSelector(10, 2, item.name, deck, store );
 
 
         topTooltipTextView.setOnClickListener(new View.OnClickListener() {

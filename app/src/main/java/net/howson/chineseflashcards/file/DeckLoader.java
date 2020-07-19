@@ -71,22 +71,29 @@ public class DeckLoader {
 
         String line;
         while ((line = ir.readLine()) != null) {
-            switch (fileType) {
-                case TSV:
-                    out.add(parseTsvLine(line));
-                    break;
 
 
-                case CSV:
-                    out.add(parseCsvLine(line));
-                    break;
+            line = line.trim();
 
-                default:
-                    throw new Error("Unknown file type");
+            if (line.length()>0 && !line.startsWith("//") && !line.startsWith("#")) {
+                switch (fileType) {
+                    case TSV:
+                        out.add(parseTsvLine(line));
+                        break;
+
+
+                    case CSV:
+                        out.add(parseCsvLine(line));
+                        break;
+
+                    default:
+                        throw new Error("Unknown file type");
+                }
             }
-
-
         }
+
+
+
 
         return out;
 

@@ -16,9 +16,6 @@ public class DeckDirectory {
     public void populateMainMenuItemsWithDecks(Context context, List<MainMenuItem> items) {
 
 
-
-
-
         for (int i = 1; i < 6; ++i) {
             items.add(new MainMenuItem("HSK" + i,
                     "deck_icon",
@@ -30,7 +27,7 @@ public class DeckDirectory {
         }
 
         List<MainMenuItem> subMenu = new ArrayList<>();
-        for (int i = 1; i <= 3; ++i) {
+        for (int i = 1; i <= 7; ++i) {
             subMenu.add(new MainMenuItem("Lesson" + i,
                     "deck_icon",
                     "hsk6_" + i,
@@ -49,7 +46,6 @@ public class DeckDirectory {
         items.add(new MainMenuItem("HSK6",
                 "ic_baseline_folder_24",
                 subMenu));
-
 
 
         List<MainMenuItem> userSubMenu = new ArrayList<>();
@@ -76,7 +72,7 @@ public class DeckDirectory {
 
     private void populateSubMenus(File dir, List<MainMenuItem> menu) {
         File[] files = dir.listFiles();
-        if (files!=null) {
+        if (files != null) {
             for (File f : files) {
 
                 if (f.isDirectory()) {

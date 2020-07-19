@@ -97,12 +97,7 @@ public class MainActivity extends WearableActivity {
 
         private void openFlashcards(MainMenuItem item) {
             Intent intent = new Intent(MainActivity.this, FlashcardActivity.class);
-            List<FlashCard> deck = new DeckLoader().loadCards(getApplicationContext(), item.fileLocation, item.resourceType, item.fileType);
-
-            try (CardHistoryStore db = new CardHistoryStore(getApplicationContext());) {
-                db.loadCounts(item.name, deck);
-            }
-            DeckStore.getInstance().setDeck(deck, item.name);
+            intent.putExtra("selectedItem", item);
             startActivity(intent);
         }
 
