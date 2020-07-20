@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class DeckLoader {
+    private final Pattern pinYin = Pattern.compile(".*[āēīōūǖĀĒĪŌŪǕáéíóúǘÁÉÍÓÚǗǎěǐǒǔǚǍĚǏǑǓǙàèìòùǜÀÈÌÒÙǛaeiouüAEIOUÜ].*");
+    private final Pattern pinYin2 = Pattern.compile(".*\\w+[1-5].*");
+
 
     public List<FlashCard> loadCards(Context context, final String fileLocation,
                                      ResourceType resourceType,
@@ -75,7 +78,7 @@ public class DeckLoader {
 
             line = line.trim();
 
-            if (line.length()>0 && !line.startsWith("//") && !line.startsWith("#")) {
+            if (line.length() > 0 && !line.startsWith("//") && !line.startsWith("#")) {
                 switch (fileType) {
                     case TSV:
                         out.add(parseTsvLine(line));
@@ -93,25 +96,37 @@ public class DeckLoader {
         }
 
 
-
-
         return out;
 
 
     }
+
+
+
 
     private FlashCard parseCsvLine(String line) {
         int i = line.indexOf(',');
         String front = line.substring(0, i);
         String s = line.substring(i + 1);
         int j = s.indexOf(',');
+
+
         String back;
+        String pinYin = "";
         if (j != -1) {
-            back = s.substring(0, j) + "\n" + s.substring(j + 1);
+            String s1 = s.substring(0, j);
+            if (this.pinYin.matcher(s1).matches() || pinYin2.matcher(s1).matches()) {
+                pinYin = s1;
+                back = s.substring(j + 1);
+            } else {
+                back = s1 + "\n" + s.substring(j + 1);
+            }
         } else {
             back = s;
         }
-        return new FlashCard(front, back);
+
+
+        return new FlashCard(front, pinYin, back);
 
     }
 
@@ -122,9 +137,10 @@ public class DeckLoader {
         String[] cols = tab.split(line);
 
         String front = cols[0];
-        String back = cols[3] + "\n" + cols[4];
+        String pinYin = cols[3];
+        String back = cols[4];
 
-        return new FlashCard(front, back);
+        return new FlashCard(front, pinYin, back);
     }
 
 

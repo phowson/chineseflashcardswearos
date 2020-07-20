@@ -9,10 +9,8 @@ import android.support.wearable.activity.WearableActivity;
 import androidx.wear.widget.WearableLinearLayoutManager;
 import androidx.wear.widget.WearableRecyclerView;
 
-import net.howson.chineseflashcards.file.DeckLoader;
 import net.howson.chineseflashcards.mainmenu.MainMenuItem;
 import net.howson.chineseflashcards.mainmenu.MenuItemsAdapter;
-import net.howson.chineseflashcards.spacedrep.FlashCard;
 import net.howson.chineseflashcards.storage.CardHistoryStore;
 import net.howson.chineseflashcards.tools.MagnifyingScrollingLayoutCallback;
 
@@ -21,11 +19,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static net.howson.chineseflashcards.Constants.SELECTED_ITEM_EXTRA;
+
 public class MainActivity extends WearableActivity {
 
 
     private static final String RESET_STATS_NAME = "Reset Stats";
     private static final String ABOUT_NAME = "About";
+    public static final String MENU_EXTRA = "menu";
     private WearableRecyclerView menuItemsRecyclerView;
 
 
@@ -40,9 +41,6 @@ public class MainActivity extends WearableActivity {
                 new MagnifyingScrollingLayoutCallback();
         menuItemsRecyclerView.setLayoutManager(
                 new WearableLinearLayoutManager(this, customScrollingLayoutCallback));
-//        menuItems.setCircularScrollingGestureEnabled(true);
-//        menuItems.setBezelFraction(0.5f);
-//        menuItems.setScrollDegreesPerScreen(90);
         menuItemsRecyclerView.setHasFixedSize(true);
         menuItemsRecyclerView.setEdgeItemsCenteringEnabled(true);
 
@@ -51,7 +49,7 @@ public class MainActivity extends WearableActivity {
         Object menuInInstanceState = null;
         Intent intent = getIntent();
         if (intent != null) {
-            menuInInstanceState = intent.getSerializableExtra("menu");
+            menuInInstanceState = intent.getSerializableExtra(MENU_EXTRA);
         }
 
 
@@ -90,14 +88,14 @@ public class MainActivity extends WearableActivity {
                 openFlashcards(item);
             } else {
                 Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                intent.putExtra("menu", (Serializable) item.subMenu);
+                intent.putExtra(MENU_EXTRA, (Serializable) item.subMenu);
                 startActivity(intent);
             }
         }
 
         private void openFlashcards(MainMenuItem item) {
-            Intent intent = new Intent(MainActivity.this, FlashcardActivity.class);
-            intent.putExtra("selectedItem", item);
+            Intent intent = new Intent(MainActivity.this, ModeSelectActivity.class);
+            intent.putExtra(SELECTED_ITEM_EXTRA, item);
             startActivity(intent);
         }
 
