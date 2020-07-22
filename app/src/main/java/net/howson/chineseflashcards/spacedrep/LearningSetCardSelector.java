@@ -2,7 +2,6 @@ package net.howson.chineseflashcards.spacedrep;
 
 import net.howson.chineseflashcards.storage.CardHistoryStore;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -41,13 +40,15 @@ public class LearningSetCardSelector implements CardSelector {
         this.learningSetSize = learningSetSize1;
         this.learningSet = new ArrayList<>(learningSetSize);
         this.otherCards = new ArrayList<>(allCards);
-        Collections.shuffle(otherCards);
-
-        populateLearningSet();
+        this.learningSet.addAll(this.store.getLearningSet(this.deckName, this.allCards));
+        this.fillLearningSet();
 
     }
 
-    private void populateLearningSet() {
+    private void fillLearningSet() {
+
+        Collections.shuffle(otherCards);
+
         otherCards.sort(new Comparator<FlashCard>() {
             @Override
             public int compare(FlashCard o1, FlashCard o2) {
@@ -55,10 +56,19 @@ public class LearningSetCardSelector implements CardSelector {
             }
         });
 
+
+        while (learningSet.size() > learningSetSize) {
+            otherCards.add(learningSet.remove(0));
+        }
+
         while (learningSet.size() < learningSetSize) {
             learningSet.add(otherCards.remove(0));
         }
 
+        // Make sure this is the right size
+        while (learningSet.size() > learningSetSize) {
+            otherCards.add(learningSet.remove(0));
+        }
 
         minTimesCorrectInSet = Integer.MAX_VALUE;
 
@@ -67,6 +77,8 @@ public class LearningSetCardSelector implements CardSelector {
         }
 
     }
+
+
 
 
     @Override
@@ -87,11 +99,11 @@ public class LearningSetCardSelector implements CardSelector {
         currentCard.promotionCounter++;
         store.updateCardCounts(this.deckName, currentCard);
 
-        if (currentCard.promotionCounter == learnThreshold) {
+        if (currentCard.promotionCounter >= learnThreshold) {
             currentCard.promotionCounter = 0;
             learningSet.remove(currentCard);
             otherCards.add(currentCard);
-            populateLearningSet();
+            fillLearningSet();
         }
 
     }
@@ -101,5 +113,10 @@ public class LearningSetCardSelector implements CardSelector {
         currentCard.numTimesIncorrect++;
         currentCard.promotionCounter = 0;
         store.updateCardCounts(this.deckName, currentCard);
+    }
+
+    @Override
+    public void persistWorkingSet() {
+        store.saveLearningSet(this.deckName, this.learningSet);
     }
 }

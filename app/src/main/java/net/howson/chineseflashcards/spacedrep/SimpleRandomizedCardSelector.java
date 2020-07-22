@@ -28,4 +28,8 @@ public class SimpleRandomizedCardSelector implements CardSelector {
     public void recordIncorrect(FlashCard currentCard) {
         currentCard.numTimesIncorrect++;
     }
+
+    @Override
+    public void persistWorkingSet() {
+    }
 }

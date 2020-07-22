@@ -6,4 +6,6 @@ public interface CardSelector {
     void recordCorrect(FlashCard currentCard);
 
     void recordIncorrect(FlashCard currentCard);
+
+    void persistWorkingSet();
 }

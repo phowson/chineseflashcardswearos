@@ -1,7 +1,5 @@
 package net.howson.chineseflashcards.spacedrep;
 
-import android.os.Parcelable;
-
 public class FlashCard {
 
     public final String front;

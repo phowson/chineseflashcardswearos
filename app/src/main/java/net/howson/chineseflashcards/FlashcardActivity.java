@@ -23,8 +23,10 @@ import net.howson.chineseflashcards.storage.CardHistoryStore;
 import java.util.List;
 import java.util.Random;
 
-import static net.howson.chineseflashcards.Constants.TEST_STYLE_EXTRA;
 import static net.howson.chineseflashcards.Constants.SELECTED_ITEM_EXTRA;
+import static net.howson.chineseflashcards.Constants.TEST_STYLE_EXTRA;
+import static net.howson.chineseflashcards.spacedrep.Constants.LEARN_SET_SIZE;
+import static net.howson.chineseflashcards.spacedrep.Constants.LEARN_THRESHOLD;
 
 public class FlashcardActivity extends WearableActivity {
 
@@ -78,9 +80,8 @@ public class FlashcardActivity extends WearableActivity {
 
 
         final MainMenuItem item = (MainMenuItem) getIntent().getSerializableExtra(SELECTED_ITEM_EXTRA);
-
-        List<FlashCard> deck = new DeckLoader().loadCards(getApplicationContext(), item.fileLocation, item.resourceType, item.fileType);
-        cardSelector = new LearningSetCardSelector(10, 2, item.name, deck, store);
+        List<FlashCard> deck = new DeckLoader().loadCards(getApplicationContext(), item.fileLocation, item.resourceType, item.fileType, item.name, store);
+        cardSelector = new LearningSetCardSelector(LEARN_SET_SIZE, LEARN_THRESHOLD, item.name, deck, store);
         topTooltipTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -95,9 +96,9 @@ public class FlashcardActivity extends WearableActivity {
             }
         });
 
-        try (CardHistoryStore db = new CardHistoryStore(getApplicationContext());) {
-            db.loadCounts(item.name, deck);
-        }
+
+
+
 
 
         selectNewCardShowFront();
@@ -105,6 +106,11 @@ public class FlashcardActivity extends WearableActivity {
 
     @Override
     protected void onStop() {
+
+        Log.i(FlashcardActivity.class.getName(), "Persist working set");
+        if (this.cardSelector!=null) {
+            this.cardSelector.persistWorkingSet();
+        }
 
         Log.i(FlashcardActivity.class.getName(), "Stopping");
         if (this.store != null) {

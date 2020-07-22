@@ -1,6 +1,5 @@
 package net.howson.chineseflashcards.mainmenu;
 
-import net.howson.chineseflashcards.MainMenuClickHandler;
 import net.howson.chineseflashcards.file.FileType;
 import net.howson.chineseflashcards.file.ResourceType;
 

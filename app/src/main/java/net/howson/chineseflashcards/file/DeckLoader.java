@@ -5,14 +5,13 @@ import android.util.Log;
 
 import net.howson.chineseflashcards.MainActivity;
 import net.howson.chineseflashcards.spacedrep.FlashCard;
+import net.howson.chineseflashcards.storage.CardHistoryStore;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,19 +24,29 @@ public class DeckLoader {
 
     public List<FlashCard> loadCards(Context context, final String fileLocation,
                                      ResourceType resourceType,
-                                     FileType fileType) {
-
+                                     FileType fileType,
+                                     String deckName,
+                                     CardHistoryStore store) {
+        List<FlashCard> cards;
 
         switch (resourceType) {
             case Package:
-                return loadCardsFromPackage(context, fileLocation, fileType);
+                cards = loadCardsFromPackage(context, fileLocation, fileType);
+                break;
 
             case Filesystem:
-                return loadCardsFromFilesystem(context, fileLocation, fileType);
+                cards = loadCardsFromFilesystem(context, fileLocation, fileType);
+                break;
 
+            default:
+                throw new Error("Unexpected resource type");
 
         }
-        throw new Error("Unexpected resource type");
+
+
+        store.loadCounts(deckName, cards);
+
+        return cards;
     }
 
     private List<FlashCard> loadCardsFromPackage(Context context, String fileLocation, FileType fileType) {
@@ -102,8 +111,6 @@ public class DeckLoader {
     }
 
 
-
-
     private FlashCard parseCsvLine(String line) {
         int i = line.indexOf(',');
         String front = line.substring(0, i);
@@ -136,9 +143,18 @@ public class DeckLoader {
     private FlashCard parseTsvLine(String line) {
         String[] cols = tab.split(line);
 
-        String front = cols[0];
-        String pinYin = cols[3];
-        String back = cols[4];
+        String front;
+        String pinYin;
+        String back;
+        if (cols.length > 3) {
+            front = cols[0];
+            pinYin = cols[3];
+            back = cols[4];
+        } else {
+            front = cols[0];
+            pinYin = cols[1];
+            back = cols[2];
+        }
 
         return new FlashCard(front, pinYin, back);
     }
