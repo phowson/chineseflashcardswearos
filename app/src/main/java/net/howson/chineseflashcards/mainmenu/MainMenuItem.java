@@ -7,12 +7,15 @@ import java.io.Serializable;
 import java.util.List;
 
 public class MainMenuItem implements Serializable  {
-    public final String name;
+
     public final String icon;
+    public final List<MainMenuItem> subMenu;
+
+    public final String name;
     public final String fileLocation;
     public final ResourceType resourceType;
     public final FileType fileType;
-    public final List<MainMenuItem> subMenu;
+
 
 
     public MainMenuItem(String name, String icon,
