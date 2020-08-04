@@ -54,6 +54,7 @@ public class DeckDirectory {
         Log.i(MainActivity.class.getName(), flashcardDir.getAbsolutePath());
 
 
+        // /storage/emulated/0/Android/data/net.howson.chineseflashcards/files/Documents
         if (flashcardDir.exists() && flashcardDir.isDirectory()) {
 
 
